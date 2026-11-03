@@ -1,0 +1,151 @@
+/* 深色看盤風：紅漲綠跌（台股習慣） */
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-2: #1c232d;
+  --border: #2a313c;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --up: #ef5350;     /* 賺錢 */
+  --down: #26a69a;   /* 賠錢 */
+  --accent: #f0b429;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand h1 { margin: 0; font-size: 20px; }
+.sub { margin: 0; color: var(--muted); font-size: 13px; }
+
+.period { color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 8px; }
+
+select, input, button {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 14px;
+}
+input[type="date"] { color-scheme: dark; }
+button { cursor: pointer; }
+button:disabled { opacity: .4; cursor: default; }
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  overflow-x: auto;
+}
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 12px 14px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+main { max-width: 1200px; margin: 0 auto; padding: 20px 24px 48px; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.card h2 { margin: 0 0 12px; font-size: 16px; }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.kpi .label { color: var(--muted); font-size: 13px; }
+.kpi .value { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px; }
+.kpi .hint { color: var(--muted); font-size: 12px; }
+
+.chart { position: relative; height: 280px; }
+.chart.tall { height: 520px; }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+th { color: var(--muted); font-weight: 500; font-size: 13px; position: sticky; top: 0; background: var(--surface); }
+th:first-child, td:first-child { text-align: left; }
+td.left, th.left { text-align: left; }
+th.sortable { cursor: pointer; }
+th.sortable:hover { color: var(--text); }
+tbody tr:hover { background: var(--surface-2); }
+tfoot td { font-weight: 600; border-bottom: none; }
+
+.up { color: var(--up); }
+.down { color: var(--down); }
+
+.fee-bar { display: flex; height: 14px; border-radius: 4px; overflow: hidden; gap: 2px; margin: 12px 0 8px; }
+.fee-bar span { display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 13px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.filters input[type="search"] { flex: 1 1 200px; }
+
+.pager { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 12px; color: var(--muted); }
+
+.note { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+
+/* 個股查詢 */
+.stock-picker input { width: 100%; font-size: 16px; padding: 10px 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { padding: 4px 10px; border-radius: 999px; font-size: 13px; }
+.chip.active { border-color: var(--accent); color: var(--accent); }
+.stock-title { font-size: 22px; margin: 4px 0 12px; }
+.stock-title small { color: var(--muted); font-size: 14px; font-weight: 400; margin-left: 8px; }
+.stock-link { color: inherit; text-decoration: underline dotted var(--muted); text-underline-offset: 3px; cursor: pointer; }
+.stock-link:hover { color: var(--accent); }
+tr.round { cursor: pointer; }
+tr.round td:first-child::before { content: "▸ "; color: var(--muted); }
+tr.round.open td:first-child::before { content: "▾ "; }
+tr.lot td { color: var(--muted); font-size: 13px; background: var(--bg); }
+
+@media (max-width: 600px) {
+  .topbar, .tabs { padding-left: 16px; padding-right: 16px; }
+  main { padding: 16px 16px 40px; }
+  .kpi .value { font-size: 20px; }
+  .chart.tall { height: 440px; }
+}
