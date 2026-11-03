@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>個人股票系統</title>
+  <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="images/logo.svg" alt="" width="32" height="32">
+      <div>
+        <h1>個人股票系統</h1>
+        <p class="sub" id="dataInfo"></p>
+      </div>
+    </div>
+    <label class="period">
+      期間
+      <select id="period"></select>
+    </label>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="overview">總覽</button>
+    <button class="tab" data-tab="stock">個股查詢</button>
+    <button class="tab" data-tab="analysis">績效分析</button>
+    <button class="tab" data-tab="holdings">目前持股</button>
+    <button class="tab" data-tab="trades">交易紀錄</button>
+  </nav>
+
+  <main>
+    <!-- 總覽 -->
+    <section id="overview" class="panel active">
+      <div class="kpis" id="kpis"></div>
+      <div class="card">
+        <h2 id="barTitle">每月損益</h2>
+        <div class="chart"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>累積已實現損益</h2>
+        <div class="chart"><canvas id="lineChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- 個股查詢 -->
+    <section id="stock" class="panel">
+      <div class="card stock-picker">
+        <input id="stockInput" type="search" list="stockList" placeholder="輸入股票代號或名稱，例如 2327 或 國巨">
+        <datalist id="stockList"></datalist>
+        <div class="chips" id="stockChips"></div>
+      </div>
+      <div id="stockDetail" hidden>
+        <h2 class="stock-title" id="stockTitle"></h2>
+        <div class="kpis" id="stockKpis"></div>
+        <div class="card">
+          <h2>成交價與買賣點</h2>
+          <div class="legend">
+            <span><i style="background:var(--up)"></i>買進</span>
+            <span><i style="background:var(--down)"></i>賣出</span>
+            <span>點越大代表成交股數越多（同一天同價位合併）</span>
+          </div>
+          <div class="chart"><canvas id="stockPriceChart"></canvas></div>
+        </div>
+        <div class="card">
+          <h2>累積已實現損益</h2>
+          <div class="chart"><canvas id="stockPnlChart"></canvas></div>
+        </div>
+        <div class="card">
+          <h2>每月統計</h2>
+          <div class="table-wrap"><table id="stockMonthTable"></table></div>
+        </div>
+        <div class="card">
+          <h2>平倉紀錄（FIFO 配對）</h2>
+          <p class="note">同一天、同類型的平倉合併為一列；點一下可展開看每一批配對。</p>
+          <div class="table-wrap"><table id="stockRoundTable"></table></div>
+          <div class="pager">
+            <button id="roundPrev">上一頁</button>
+            <span id="roundPage"></span>
+            <button id="roundNext">下一頁</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>成交明細</h2>
+          <div class="filters">
+            <select id="stockType"><option value="">全部買賣別</option></select>
+          </div>
+          <p class="sub" id="stockTradeSummary"></p>
+          <div class="table-wrap"><table id="stockTradeTable"></table></div>
+          <div class="pager">
+            <button id="stPrev">上一頁</button>
+            <span id="stPage"></span>
+            <button id="stNext">下一頁</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 績效分析 -->
+    <section id="analysis" class="panel">
+      <div class="card">
+        <h2>當沖 vs 波段</h2>
+        <div class="table-wrap"><table id="kindTable"></table></div>
+      </div>
+      <div class="card">
+        <h2>費用吃掉多少獲利</h2>
+        <div id="feeBox"></div>
+      </div>
+      <div class="card">
+        <h2>各股損益排行</h2>
+        <div class="chart tall"><canvas id="stockChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>各股績效明細</h2>
+        <div class="table-wrap"><table id="stockTable"></table></div>
+      </div>
+      <div class="card">
+        <h2>帳戶類型</h2>
+        <div class="table-wrap"><table id="poolTable"></table></div>
+      </div>
+      <p class="note">
+        說明：損益採<strong>先進先出（FIFO）</strong>計算，已扣手續費、交易稅、融資利息與融券費用。
+        同一天、同一檔、同一帳戶的買賣先互相配對視為「當沖」，其餘為「波段」。
+        勝率以「同一檔股票、同一天、同一類型」的平倉合計為一回合計算。
+      </p>
+    </section>
+
+    <!-- 目前持股 -->
+    <section id="holdings" class="panel">
+      <div class="card">
+        <h2>目前持股（以成本計）</h2>
+        <div class="table-wrap"><table id="holdTable"></table></div>
+      </div>
+      <div class="card">
+        <h2>成本未知的賣出</h2>
+        <p class="note">這些賣出找不到對應的買進紀錄，通常是 2026 年以前就持有的股票、配股或申購，因此不計入損益。</p>
+        <div class="table-wrap"><table id="unknownTable"></table></div>
+      </div>
+    </section>
+
+    <!-- 交易紀錄 -->
+    <section id="trades" class="panel">
+      <div class="card">
+        <div class="filters">
+          <input id="fStock" type="search" placeholder="搜尋股票代號或名稱">
+          <select id="fType"><option value="">全部買賣別</option></select>
+          <input id="fFrom" type="date" aria-label="起始日">
+          <input id="fTo" type="date" aria-label="結束日">
+        </div>
+        <p class="sub" id="tradeSummary"></p>
+        <div class="table-wrap"><table id="tradeTable"></table></div>
+        <div class="pager">
+          <button id="prevPage">上一頁</button>
+          <span id="pageInfo"></span>
+          <button id="nextPage">下一頁</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="data/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
